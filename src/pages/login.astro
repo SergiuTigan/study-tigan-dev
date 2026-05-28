@@ -1,4 +1,6 @@
 ---
+import "../styles/global.css";
+
 const session = Astro.cookies.get("study_session");
 if (session?.value === "authenticated") {
   return Astro.redirect("/");
