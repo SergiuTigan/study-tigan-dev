@@ -1,0 +1,5 @@
+{
+  "framework": "astro",
+  "buildCommand": "node scripts/build-search-index.mjs && npx astro build",
+  "installCommand": "npm install --legacy-peer-deps"
+}
