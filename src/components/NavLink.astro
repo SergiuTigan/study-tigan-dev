@@ -1,0 +1,41 @@
+---
+interface Props {
+  href: string;
+  label: string;
+  pathname: string;
+  icon: "book" | "pencil" | "template" | "map";
+}
+
+const { href, label, pathname, icon } = Astro.props;
+const isActive = pathname.startsWith(href);
+
+const icons: Record<string, string> = {
+  book: "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253",
+  pencil:
+    "M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125",
+  template:
+    "M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z",
+  map: "M9 6.75V15m0-8.25a1.5 1.5 0 013 0V15m-3 0a1.5 1.5 0 003 0m-3-8.25V5.25A2.25 2.25 0 0111.25 3h1.5A2.25 2.25 0 0115 5.25v.75m-6 0h6m-6 0H6.375c-1.035 0-1.875.84-1.875 1.875v11.25c0 1.035.84 1.875 1.875 1.875h11.25c1.035 0 1.875-.84 1.875-1.875V8.625c0-1.036-.84-1.875-1.875-1.875H15",
+};
+---
+
+<a
+  href={href}
+  class={`flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-sm transition-colors mb-0.5 ${
+    isActive
+      ? "bg-indigo-500/10 text-indigo-400"
+      : "text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/50"
+  }`}
+>
+  <svg
+    class="w-4 h-4 shrink-0"
+    fill="none"
+    viewBox="0 0 24 24"
+    stroke="currentColor"
+    stroke-width="1.5"
+  >
+    <path stroke-linecap="round" stroke-linejoin="round" d={icons[icon]}
+    ></path>
+  </svg>
+  <span class="text-[13px]">{label}</span>
+</a>

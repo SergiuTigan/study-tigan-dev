@@ -1,0 +1,22 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+import Sidebar from "../components/Sidebar.astro";
+import MobileMenuToggle from "../components/MobileMenuToggle";
+
+interface Props {
+  title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<BaseLayout title={title}>
+  <div class="flex h-screen overflow-hidden">
+    <Sidebar />
+    <main class="flex-1 overflow-y-auto">
+      <div class="lg:hidden h-12"></div>
+      <slot />
+    </main>
+  </div>
+  <MobileMenuToggle client:load />
+</BaseLayout>

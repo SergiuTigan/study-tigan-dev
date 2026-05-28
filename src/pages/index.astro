@@ -1,0 +1,176 @@
+---
+import AppLayout from "../layouts/AppLayout.astro";
+import SectionCard from "../components/SectionCard.astro";
+import SearchDialog from "../components/SearchDialog";
+import { getCollection } from "astro:content";
+
+const reference = await getCollection("reference");
+const journal = await getCollection("journal");
+const templates = await getCollection("templates");
+const roadmap = await getCollection("roadmap");
+
+const weekCount = roadmap.filter((e) => e.data.type === "week-intro").length;
+const dayCount = roadmap.filter((e) => e.data.type === "day").length;
+---
+
+<AppLayout title="Dashboard">
+  <div class="min-h-full">
+    {/* Hero */}
+    <div
+      class="border-b border-zinc-800/80 bg-gradient-to-b from-zinc-900/50 to-transparent"
+    >
+      <div class="max-w-5xl mx-auto px-6 py-12 lg:py-16">
+        <h1 class="text-3xl lg:text-4xl font-bold text-white tracking-tight">
+          Claude Code Lab
+        </h1>
+        <p class="text-zinc-400 mt-3 text-lg max-w-2xl">
+          Personal efficiency toolkit. Reference docs, workflow patterns, and AI
+          engineering roadmap.
+        </p>
+
+        <div class="flex flex-wrap gap-6 mt-8">
+          <div class="flex items-center gap-2">
+            <div
+              class="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center"
+            >
+              <svg
+                class="w-4 h-4 text-indigo-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+                ></path>
+              </svg>
+            </div>
+            <div>
+              <p class="text-lg font-semibold text-white">{reference.length}</p>
+              <p class="text-xs text-zinc-500">References</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <div
+              class="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center"
+            >
+              <svg
+                class="w-4 h-4 text-indigo-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
+                ></path>
+              </svg>
+            </div>
+            <div>
+              <p class="text-lg font-semibold text-white">{weekCount}</p>
+              <p class="text-xs text-zinc-500">Weeks</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <div
+              class="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center"
+            >
+              <svg
+                class="w-4 h-4 text-indigo-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                ></path>
+              </svg>
+            </div>
+            <div>
+              <p class="text-lg font-semibold text-white">{dayCount}</p>
+              <p class="text-xs text-zinc-500">Lessons</p>
+            </div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <div
+              class="w-8 h-8 rounded-lg bg-indigo-500/10 flex items-center justify-center"
+            >
+              <svg
+                class="w-4 h-4 text-indigo-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+                stroke-width="2"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"
+                ></path>
+              </svg>
+            </div>
+            <div>
+              <p class="text-lg font-semibold text-white">
+                {templates.length}
+              </p>
+              <p class="text-xs text-zinc-500">Templates</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {/* Section Cards */}
+    <div class="max-w-5xl mx-auto px-6 py-10">
+      <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <SectionCard
+          href="/reference"
+          title="Reference"
+          description="Claude Code commands, config, and best practices"
+          count={reference.length}
+          countLabel="docs"
+          color="indigo"
+          icon="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+        />
+        <SectionCard
+          href="/journal"
+          title="Journal"
+          description="Daily notes and learnings"
+          count={journal.length}
+          countLabel="entries"
+          color="amber"
+          icon="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897l8.932-8.931zm0 0L19.5 7.125"
+        />
+        <SectionCard
+          href="/templates"
+          title="Templates"
+          description="Prompt patterns, configs, and workflow recipes"
+          count={templates.length}
+          countLabel="templates"
+          color="purple"
+          icon="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z"
+        />
+        <SectionCard
+          href="/roadmap"
+          title="Roadmap"
+          description="AI engineering curriculum — weeks 1-12, 14-16"
+          count={weekCount}
+          countLabel="weeks"
+          color="emerald"
+          icon="M13 10V3L4 14h7v7l9-11h-7z"
+        />
+      </div>
+    </div>
+  </div>
+  <SearchDialog client:load />
+</AppLayout>

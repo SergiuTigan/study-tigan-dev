@@ -1,0 +1,20 @@
+---
+import AppLayout from "./AppLayout.astro";
+import Breadcrumb from "../components/Breadcrumb.astro";
+
+interface Props {
+  title: string;
+  breadcrumbs: { label: string; href?: string }[];
+}
+
+const { title, breadcrumbs } = Astro.props;
+---
+
+<AppLayout title={title}>
+  <div class="max-w-4xl mx-auto px-6 py-8 lg:py-12">
+    <Breadcrumb items={breadcrumbs} />
+    <div class="prose-study mt-6">
+      <slot />
+    </div>
+  </div>
+</AppLayout>

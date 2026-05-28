@@ -1,0 +1,35 @@
+---
+interface Props {
+  phase: number;
+  label: string;
+  icon: string;
+}
+
+const { phase, label, icon } = Astro.props;
+
+const colorMap: Record<number, { bg: string; text: string }> = {
+  1: { bg: "bg-emerald-500/5", text: "text-emerald-400" },
+  2: { bg: "bg-blue-500/5", text: "text-blue-400" },
+  3: { bg: "bg-purple-500/5", text: "text-purple-400" },
+  4: { bg: "bg-amber-500/5", text: "text-amber-400" },
+};
+
+const c = colorMap[phase] || colorMap[1];
+---
+
+<div class="flex items-center gap-3 mb-5">
+  <div class={`w-8 h-8 rounded-lg ${c.bg} flex items-center justify-center`}>
+    <svg
+      class={`w-4 h-4 ${c.text}`}
+      fill="none"
+      viewBox="0 0 24 24"
+      stroke="currentColor"
+      stroke-width="2"
+    >
+      <path stroke-linecap="round" stroke-linejoin="round" d={icon}></path>
+    </svg>
+  </div>
+  <h2 class={`text-lg font-semibold ${c.text}`}>
+    Phase {phase}: {label}
+  </h2>
+</div>

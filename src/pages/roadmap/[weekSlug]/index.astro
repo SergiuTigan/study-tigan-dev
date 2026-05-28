@@ -1,0 +1,78 @@
+---
+import AppLayout from "../../../layouts/AppLayout.astro";
+import Breadcrumb from "../../../components/Breadcrumb.astro";
+import SearchDialog from "../../../components/SearchDialog";
+import { getCollection, render } from "astro:content";
+
+const { weekSlug } = Astro.params;
+const allRoadmap = await getCollection("roadmap");
+
+// Find week intro
+const weekIntro = allRoadmap.find(
+  (e) => e.data.type === "week-intro" && e.id === `${weekSlug}/week-intro`
+);
+
+if (!weekIntro) {
+  return Astro.redirect("/roadmap");
+}
+
+const weekDays = allRoadmap
+  .filter(
+    (e) => e.data.type === "day" && e.data.week === weekIntro.data.week
+  )
+  .sort((a, b) => a.data.order - b.data.order);
+
+const { Content } = await render(weekIntro);
+
+function daySlug(id: string) {
+  return id.split("/")[1];
+}
+---
+
+<AppLayout title={weekIntro.data.title}>
+  <div class="max-w-4xl mx-auto px-6 py-8 lg:py-12">
+    <Breadcrumb
+      items={[
+        { label: "Roadmap", href: "/roadmap" },
+        { label: `Week ${weekIntro.data.week}` },
+      ]}
+    />
+
+    <div class="prose-study">
+      <Content />
+    </div>
+
+    {
+      weekDays.length > 0 && (
+        <div class="mt-10">
+          <h2 class="text-lg font-semibold text-white mb-4">Days</h2>
+          <div class="space-y-2">
+            {weekDays.map((day) => {
+              const dSlug = daySlug(day.id);
+              const dayTitle = day.data.title
+                .replace(/^Day \d+[\s:—-]+/, "")
+                .trim();
+
+              return (
+                <a
+                  href={`/roadmap/${weekSlug}/${dSlug}`}
+                  class="block rounded-lg border border-zinc-800/60 bg-zinc-900/30 p-3 hover:border-zinc-700 transition-all group"
+                >
+                  <div class="flex items-center gap-3">
+                    <span class="text-xs font-mono text-zinc-600 w-8 shrink-0">
+                      D{day.data.day}
+                    </span>
+                    <span class="text-sm text-zinc-200 group-hover:text-white transition-colors">
+                      {dayTitle}
+                    </span>
+                  </div>
+                </a>
+              );
+            })}
+          </div>
+        </div>
+      )
+    }
+  </div>
+  <SearchDialog client:load />
+</AppLayout>

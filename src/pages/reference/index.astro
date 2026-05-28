@@ -1,0 +1,56 @@
+---
+import AppLayout from "../../layouts/AppLayout.astro";
+import Breadcrumb from "../../components/Breadcrumb.astro";
+import SearchDialog from "../../components/SearchDialog";
+import { getCollection } from "astro:content";
+
+const entries = (await getCollection("reference")).sort(
+  (a, b) => a.data.order - b.data.order
+);
+
+// Group by category
+const categories = new Map<string, typeof entries>();
+for (const entry of entries) {
+  const cat = entry.data.category;
+  if (!categories.has(cat)) categories.set(cat, []);
+  categories.get(cat)!.push(entry);
+}
+---
+
+<AppLayout title="Reference">
+  <div class="max-w-4xl mx-auto px-6 py-8 lg:py-12">
+    <Breadcrumb items={[{ label: "Reference" }]} />
+    <h1 class="text-2xl font-bold text-white tracking-tight mb-2">
+      Reference
+    </h1>
+    <p class="text-zinc-400 text-sm mb-8">
+      Claude Code commands, configuration, and best practices.
+    </p>
+
+    {
+      Array.from(categories.entries()).map(([category, items]) => (
+        <div class="mb-8">
+          <h2 class="text-xs font-semibold uppercase tracking-wider text-zinc-500 mb-3">
+            {category}
+          </h2>
+          <div class="space-y-2">
+            {items.map((item) => (
+              <a
+                href={`/reference/${item.id}`}
+                class="block rounded-lg border border-zinc-800/60 bg-zinc-900/30 p-4 hover:border-zinc-700 transition-all group"
+              >
+                <h3 class="text-sm font-medium text-zinc-200 group-hover:text-white transition-colors">
+                  {item.data.title}
+                </h3>
+                <p class="text-xs text-zinc-500 mt-1">
+                  {item.data.description}
+                </p>
+              </a>
+            ))}
+          </div>
+        </div>
+      ))
+    }
+  </div>
+  <SearchDialog client:load />
+</AppLayout>

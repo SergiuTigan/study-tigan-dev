@@ -1,0 +1,69 @@
+---
+import AppLayout from "../../../layouts/AppLayout.astro";
+import Breadcrumb from "../../../components/Breadcrumb.astro";
+import PrevNextNav from "../../../components/PrevNextNav.astro";
+import SearchDialog from "../../../components/SearchDialog";
+import { getCollection, render } from "astro:content";
+
+const { weekSlug, daySlug } = Astro.params;
+const allRoadmap = await getCollection("roadmap");
+
+const entry = allRoadmap.find(
+  (e) => e.data.type === "day" && e.id === `${weekSlug}/${daySlug}`
+);
+
+if (!entry) {
+  return Astro.redirect("/roadmap");
+}
+
+const { Content } = await render(entry);
+
+// Build prev/next navigation
+const allDays = allRoadmap
+  .filter((e) => e.data.type === "day")
+  .sort((a, b) => a.data.order - b.data.order);
+
+const currentIndex = allDays.findIndex((d) => d.id === entry.id);
+
+const prevDay = currentIndex > 0 ? allDays[currentIndex - 1] : null;
+const nextDay =
+  currentIndex < allDays.length - 1 ? allDays[currentIndex + 1] : null;
+
+function idToHref(id: string) {
+  const [w, d] = id.split("/");
+  return `/roadmap/${w}/${d}`;
+}
+
+function dayTitle(data: { title: string }) {
+  return data.title.replace(/^Day \d+[\s:—-]+/, "").trim();
+}
+---
+
+<AppLayout title={entry.data.title}>
+  <div class="max-w-4xl mx-auto px-6 py-8 lg:py-12">
+    <Breadcrumb
+      items={[
+        { label: "Roadmap", href: "/roadmap" },
+        {
+          label: `Week ${entry.data.week}`,
+          href: `/roadmap/${weekSlug}`,
+        },
+        { label: `Day ${entry.data.day}` },
+      ]}
+    />
+
+    <div class="prose-study">
+      <Content />
+    </div>
+
+    <PrevNextNav
+      prev={prevDay
+        ? { href: idToHref(prevDay.id), label: dayTitle(prevDay.data) }
+        : undefined}
+      next={nextDay
+        ? { href: idToHref(nextDay.id), label: dayTitle(nextDay.data) }
+        : undefined}
+    />
+  </div>
+  <SearchDialog client:load />
+</AppLayout>

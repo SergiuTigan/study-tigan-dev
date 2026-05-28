@@ -1,0 +1,111 @@
+---
+const session = Astro.cookies.get("study_session");
+if (session?.value === "authenticated") {
+  return Astro.redirect("/");
+}
+
+const error = Astro.url.searchParams.get("error");
+---
+
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Sign In | study.tigan.dev</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600;700&family=Geist+Mono:wght@400;500&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body
+    class="min-h-screen flex items-center justify-center bg-zinc-950 px-4"
+    style="font-family: 'Geist', sans-serif;"
+  >
+    <div class="w-full max-w-sm">
+      <div class="mb-10 text-center">
+        <div
+          class="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-indigo-600 mb-5"
+        >
+          <svg
+            class="w-7 h-7 text-white"
+            fill="none"
+            viewBox="0 0 24 24"
+            stroke="currentColor"
+            stroke-width="2"
+          >
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+            ></path>
+          </svg>
+        </div>
+        <h1 class="text-2xl font-bold text-white tracking-tight">
+          Claude Code Lab
+        </h1>
+        <p class="text-zinc-500 mt-2 text-sm">
+          Sign in to access your study material
+        </p>
+      </div>
+
+      <form action="/api/login" method="POST" class="space-y-4">
+        {
+          error && (
+            <div class="rounded-lg bg-red-500/10 border border-red-500/20 px-4 py-3 text-sm text-red-400">
+              Invalid credentials
+            </div>
+          )
+        }
+
+        <div>
+          <label
+            for="email"
+            class="block text-sm font-medium text-zinc-400 mb-1.5"
+          >
+            Email
+          </label>
+          <input
+            id="email"
+            name="email"
+            type="email"
+            autocomplete="email"
+            required
+            class="w-full rounded-lg bg-zinc-900 border border-zinc-800 px-3.5 py-2.5 text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition text-sm"
+            placeholder="sergiu@tigan.dev"
+          />
+        </div>
+
+        <div>
+          <label
+            for="password"
+            class="block text-sm font-medium text-zinc-400 mb-1.5"
+          >
+            Password
+          </label>
+          <input
+            id="password"
+            name="password"
+            type="password"
+            autocomplete="current-password"
+            required
+            class="w-full rounded-lg bg-zinc-900 border border-zinc-800 px-3.5 py-2.5 text-white placeholder:text-zinc-600 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition text-sm"
+            placeholder="••••••••••••"
+          />
+        </div>
+
+        <button
+          type="submit"
+          class="w-full rounded-lg bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white hover:bg-indigo-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 focus:ring-offset-zinc-950 transition mt-2"
+        >
+          Sign in
+        </button>
+      </form>
+
+      <p class="text-center text-zinc-700 text-xs mt-8">
+        Claude Code efficiency lab
+      </p>
+    </div>
+  </body>
+</html>
