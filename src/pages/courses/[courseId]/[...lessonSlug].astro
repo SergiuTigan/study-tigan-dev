@@ -3,6 +3,7 @@ import AppLayout from "../../../layouts/AppLayout.astro";
 import Breadcrumb from "../../../components/Breadcrumb.astro";
 import PrevNextNav from "../../../components/PrevNextNav.astro";
 import SearchDialog from "../../../components/SearchDialog";
+import { LessonToggle } from "../../../components/ProgressTracker";
 import { getCollection, render } from "astro:content";
 
 const { courseId, lessonSlug } = Astro.params;
@@ -69,6 +70,7 @@ const c = colorStyles[lessonEntry.data.color] || colorStyles.purple;
             </span>
           )
         }
+        <LessonToggle client:load lessonId={lessonEntry.data.lessonId} color={lessonEntry.data.color} />
       </div>
       <p class="text-xs text-zinc-500 mt-2">
         {lessonEntry.data.courseTitle} &middot; {lessonEntry.data.moduleTitle}
