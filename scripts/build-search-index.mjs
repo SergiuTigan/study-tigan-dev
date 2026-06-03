@@ -9,7 +9,7 @@ import path from "path";
 const CONTENT_DIR = path.resolve("src/content");
 const OUT_FILE = path.resolve("public/search-index.json");
 
-const sections = ["reference", "journal", "templates", "roadmap"];
+const sections = ["reference", "journal", "templates", "roadmap", "courses"];
 const index = [];
 
 function extractPreview(content, maxLen = 200) {
@@ -67,6 +67,9 @@ for (const section of sections) {
           } else {
             href = `/roadmap/${slug}`;
           }
+        } else if (section === "courses") {
+          // courses/angular-21/signals/signal-basics -> /courses/angular-21/signals/signal-basics
+          href = `/courses/${slug}`;
         } else {
           href = `/${section}/${entry.name.replace(".md", "")}`;
         }

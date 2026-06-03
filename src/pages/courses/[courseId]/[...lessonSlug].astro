@@ -1,0 +1,93 @@
+---
+import AppLayout from "../../../layouts/AppLayout.astro";
+import Breadcrumb from "../../../components/Breadcrumb.astro";
+import PrevNextNav from "../../../components/PrevNextNav.astro";
+import SearchDialog from "../../../components/SearchDialog";
+import { getCollection, render } from "astro:content";
+
+const { courseId, lessonSlug } = Astro.params;
+const allLessons = await getCollection("courses");
+const courseLessons = allLessons
+  .filter((l) => l.data.course === courseId)
+  .sort((a, b) => a.data.order - b.data.order);
+
+// Find current lesson — the entry id format is "courseId/module/lesson"
+const fullSlug = `${courseId}/${lessonSlug}`;
+const lessonEntry = courseLessons.find((l) => l.id === fullSlug);
+
+if (!lessonEntry) {
+  return Astro.redirect(`/courses/${courseId}`);
+}
+
+const { Content } = await render(lessonEntry);
+
+// Prev/next navigation
+const idx = courseLessons.indexOf(lessonEntry);
+const prev = idx > 0 ? courseLessons[idx - 1] : null;
+const next = idx < courseLessons.length - 1 ? courseLessons[idx + 1] : null;
+
+function lessonHref(entry: typeof lessonEntry) {
+  const slug = entry.id.split("/").slice(1).join("/");
+  return `/courses/${courseId}/${slug}`;
+}
+
+// Color styles for badge
+const colorStyles: Record<string, { badge: string; dot: string }> = {
+  red: { badge: "bg-rose-500/10 text-rose-400", dot: "bg-rose-500" },
+  blue: { badge: "bg-blue-500/10 text-blue-400", dot: "bg-blue-500" },
+  purple: { badge: "bg-purple-500/10 text-purple-400", dot: "bg-purple-500" },
+};
+
+const c = colorStyles[lessonEntry.data.color] || colorStyles.purple;
+---
+
+<AppLayout title={lessonEntry.data.title}>
+  <div class="max-w-4xl mx-auto px-6 py-8 lg:py-12">
+    <Breadcrumb
+      items={[
+        { label: "Courses", href: "/courses" },
+        { label: lessonEntry.data.courseTitle, href: `/courses/${courseId}` },
+        { label: lessonEntry.data.moduleTitle },
+        { label: lessonEntry.data.title },
+      ]}
+    />
+
+    {/* Lesson header */}
+    <div class="mb-8">
+      <div class="flex items-center gap-3 flex-wrap">
+        <h1
+          class="text-xl lg:text-2xl font-bold text-white tracking-tight"
+        >
+          {lessonEntry.data.title}
+        </h1>
+        {
+          lessonEntry.data.duration && (
+            <span
+              class={`text-xs font-medium px-2 py-0.5 rounded-full ${c.badge}`}
+            >
+              {lessonEntry.data.duration}
+            </span>
+          )
+        }
+      </div>
+      <p class="text-xs text-zinc-500 mt-2">
+        {lessonEntry.data.courseTitle} &middot; {lessonEntry.data.moduleTitle}
+      </p>
+    </div>
+
+    {/* Lesson content */}
+    <div class="prose-study">
+      <Content />
+    </div>
+
+    <PrevNextNav
+      prev={prev
+        ? { href: lessonHref(prev), label: prev.data.title }
+        : undefined}
+      next={next
+        ? { href: lessonHref(next), label: next.data.title }
+        : undefined}
+    />
+  </div>
+  <SearchDialog client:load />
+</AppLayout>

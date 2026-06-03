@@ -45,4 +45,22 @@ const templates = defineCollection({
   }),
 });
 
-export const collections = { roadmap, reference, journal, templates };
+const courses = defineCollection({
+  loader: glob({ pattern: "**/*.md", base: "./src/content/courses" }),
+  schema: z.object({
+    title: z.string(),
+    course: z.string(),
+    courseTitle: z.string(),
+    module: z.string(),
+    moduleTitle: z.string(),
+    moduleDescription: z.string(),
+    lessonId: z.string(),
+    duration: z.string(),
+    order: z.number(),
+    moduleOrder: z.number(),
+    lessonOrder: z.number(),
+    color: z.string(),
+  }),
+});
+
+export const collections = { roadmap, reference, journal, templates, courses };

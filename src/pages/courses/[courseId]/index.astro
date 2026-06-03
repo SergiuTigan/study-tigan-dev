@@ -1,0 +1,236 @@
+---
+import AppLayout from "../../../layouts/AppLayout.astro";
+import Breadcrumb from "../../../components/Breadcrumb.astro";
+import SearchDialog from "../../../components/SearchDialog";
+import { getCollection } from "astro:content";
+
+const { courseId } = Astro.params;
+const allLessons = await getCollection("courses");
+const courseLessons = allLessons
+  .filter((l) => l.data.course === courseId)
+  .sort((a, b) => a.data.order - b.data.order);
+
+if (courseLessons.length === 0) {
+  return Astro.redirect("/courses");
+}
+
+const courseTitle = courseLessons[0].data.courseTitle;
+const color = courseLessons[0].data.color;
+
+// Group by module
+const modules: {
+  id: string;
+  title: string;
+  description: string;
+  order: number;
+  lessons: typeof courseLessons;
+}[] = [];
+const moduleMap = new Map<string, (typeof modules)[0]>();
+for (const lesson of courseLessons) {
+  if (!moduleMap.has(lesson.data.module)) {
+    const mod = {
+      id: lesson.data.module,
+      title: lesson.data.moduleTitle,
+      description: lesson.data.moduleDescription,
+      order: lesson.data.moduleOrder,
+      lessons: [] as typeof courseLessons,
+    };
+    moduleMap.set(lesson.data.module, mod);
+    modules.push(mod);
+  }
+  moduleMap.get(lesson.data.module)!.lessons.push(lesson);
+}
+modules.sort((a, b) => a.order - b.order);
+
+// Color styles
+const colorStyles: Record<string, { bg: string; text: string; border: string; accent: string; dot: string }> = {
+  red: {
+    bg: "bg-rose-500/5",
+    text: "text-rose-400",
+    border: "border-rose-500/20",
+    accent: "text-rose-500",
+    dot: "bg-rose-500",
+  },
+  blue: {
+    bg: "bg-blue-500/5",
+    text: "text-blue-400",
+    border: "border-blue-500/20",
+    accent: "text-blue-500",
+    dot: "bg-blue-500",
+  },
+  purple: {
+    bg: "bg-purple-500/5",
+    text: "text-purple-400",
+    border: "border-purple-500/20",
+    accent: "text-purple-500",
+    dot: "bg-purple-500",
+  },
+};
+
+const c = colorStyles[color] || colorStyles.purple;
+
+function lessonHref(entry: (typeof courseLessons)[0]) {
+  const slug = entry.id.split("/").slice(1).join("/");
+  return `/courses/${courseId}/${slug}`;
+}
+
+const totalDuration = courseLessons.reduce((sum, l) => {
+  const match = l.data.duration?.match(/(\d+)/);
+  return sum + (match ? parseInt(match[1], 10) : 0);
+}, 0);
+---
+
+<AppLayout title={courseTitle}>
+  <div class="min-h-full">
+    {/* Hero */}
+    <div
+      class="border-b border-zinc-800/80 bg-gradient-to-b from-zinc-900/50 to-transparent"
+    >
+      <div class="max-w-5xl mx-auto px-6 py-10 lg:py-14">
+        <Breadcrumb
+          items={[
+            { label: "Courses", href: "/courses" },
+            { label: courseTitle },
+          ]}
+        />
+
+        <div class="flex items-center gap-3 mb-2">
+          <div class={`w-2 h-2 rounded-full ${c.dot}`}></div>
+          <h1 class="text-2xl lg:text-3xl font-bold text-white tracking-tight">
+            {courseTitle}
+          </h1>
+        </div>
+
+        <div class="flex flex-wrap gap-4 mt-4">
+          <div
+            class="flex items-center gap-1.5 text-sm text-zinc-400"
+          >
+            <svg
+              class="w-4 h-4 text-zinc-500"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M3.75 12h16.5m-16.5 3.75h16.5M3.75 19.5h16.5M5.625 4.5h12.75a1.875 1.875 0 010 3.75H5.625a1.875 1.875 0 010-3.75z"
+              ></path>
+            </svg>
+            {modules.length} modules
+          </div>
+          <div
+            class="flex items-center gap-1.5 text-sm text-zinc-400"
+          >
+            <svg
+              class="w-4 h-4 text-zinc-500"
+              fill="none"
+              viewBox="0 0 24 24"
+              stroke="currentColor"
+              stroke-width="2"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253"
+              ></path>
+            </svg>
+            {courseLessons.length} lessons
+          </div>
+          {
+            totalDuration > 0 && (
+              <div class="flex items-center gap-1.5 text-sm text-zinc-400">
+                <svg
+                  class="w-4 h-4 text-zinc-500"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"
+                  />
+                </svg>
+                ~{totalDuration} min
+              </div>
+            )
+          }
+        </div>
+      </div>
+    </div>
+
+    {/* Module Accordion */}
+    <div class="max-w-5xl mx-auto px-6 py-10">
+      <div class="space-y-4">
+        {
+          modules.map((mod, modIndex) => (
+            <details
+              class={`group rounded-xl border ${c.border} ${c.bg} overflow-hidden`}
+              open={modIndex === 0}
+            >
+              <summary class="flex items-center gap-3 px-5 py-4 cursor-pointer select-none hover:bg-zinc-800/30 transition-colors">
+                <svg
+                  class="w-4 h-4 text-zinc-500 shrink-0 transition-transform group-open:rotate-90"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                  stroke-width="2"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-2">
+                    <span class="text-xs font-mono text-zinc-600">
+                      M{mod.order}
+                    </span>
+                    <h3 class="text-sm font-semibold text-zinc-200">
+                      {mod.title}
+                    </h3>
+                  </div>
+                  <p class="text-xs text-zinc-500 mt-0.5 truncate">
+                    {mod.description}
+                  </p>
+                </div>
+                <span class="text-xs text-zinc-600 font-mono shrink-0">
+                  {mod.lessons.length} lessons
+                </span>
+              </summary>
+              <div class="border-t border-zinc-800/60 px-5 py-2">
+                <div class="space-y-1">
+                  {mod.lessons
+                    .sort((a, b) => a.data.lessonOrder - b.data.lessonOrder)
+                    .map((lesson) => (
+                      <a
+                        href={lessonHref(lesson)}
+                        class="flex items-center gap-3 rounded-lg px-3 py-2.5 hover:bg-zinc-800/40 transition-colors group/lesson"
+                      >
+                        <span class="text-xs font-mono text-zinc-600 w-6 shrink-0">
+                          {lesson.data.lessonOrder}
+                        </span>
+                        <span class="text-sm text-zinc-300 group-hover/lesson:text-white transition-colors flex-1 min-w-0 truncate">
+                          {lesson.data.title}
+                        </span>
+                        {lesson.data.duration && (
+                          <span class="text-[10px] text-zinc-600 font-mono shrink-0">
+                            {lesson.data.duration}
+                          </span>
+                        )}
+                      </a>
+                    ))}
+                </div>
+              </div>
+            </details>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+  <SearchDialog client:load />
+</AppLayout>
