@@ -9,7 +9,7 @@ import path from "path";
 const CONTENT_DIR = path.resolve("src/content");
 const OUT_FILE = path.resolve("public/search-index.json");
 
-const sections = ["reference", "journal", "templates", "roadmap", "courses"];
+const sections = ["reference", "journal", "templates", "roadmap", "courses", "lessons"];
 const index = [];
 
 function extractPreview(content, maxLen = 200) {

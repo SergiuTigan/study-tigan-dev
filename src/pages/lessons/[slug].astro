@@ -1,0 +1,26 @@
+---
+import MarkdownLayout from "../../layouts/MarkdownLayout.astro";
+import SearchDialog from "../../components/SearchDialog";
+import { getCollection, render } from "astro:content";
+
+const { slug } = Astro.params;
+const entries = await getCollection("lessons");
+const entry = entries.find((e) => e.id === slug);
+
+if (!entry) {
+  return Astro.redirect("/lessons");
+}
+
+const { Content } = await render(entry);
+---
+
+<MarkdownLayout
+  title={entry.data.title}
+  breadcrumbs={[
+    { label: "Lessons", href: "/lessons" },
+    { label: entry.data.title },
+  ]}
+>
+  <Content />
+  <SearchDialog client:load />
+</MarkdownLayout>

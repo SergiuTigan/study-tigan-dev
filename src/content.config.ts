@@ -63,4 +63,17 @@ const courses = defineCollection({
   }),
 });
 
-export const collections = { roadmap, reference, journal, templates, courses };
+// Deeper reading / exercises for Alfred's daily-lesson feature — Alfred
+// shows the short 5-10min read in-app; when there's a hands-on exercise or
+// worthwhile deeper material, it publishes that here and links out.
+const lessons = defineCollection({
+  loader: glob({ pattern: "**/*.md", base: "./src/content/lessons" }),
+  schema: z.object({
+    title: z.string(),
+    date: z.string(), // "YYYY-MM-DD"
+    category: z.string(),
+    summary: z.string().optional(),
+  }),
+});
+
+export const collections = { roadmap, reference, journal, templates, courses, lessons };
